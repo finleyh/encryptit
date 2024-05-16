@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Check if encrypted file path is provided
+if [ -z "$1" ]; then
+  echo "Usage: $0 /path/to/encrypted_file.tar.gz.gpg"
+  exit 1
+fi
+
+# Define variables
+ENCRYPTED_ARCHIVE=$1
+ARCHIVE_NAME=$(basename "$ENCRYPTED_ARCHIVE" .gpg)
+
+# Decrypt the archive
+echo "Decrypting the archive..."
+gpg -o "$ARCHIVE_NAME" -d "$ENCRYPTED_ARCHIVE"
+
+# Check if the decryption was successful
+if [ $? -eq 0 ]; then
+  # Extract the decrypted archive
+  echo "Extracting the archive..."
+  tar -xzvf "$ARCHIVE_NAME"
+
+  # Optionally, remove the decrypted archive file
+  # Uncomment the next line if you want to delete the decrypted archive after extraction
+  echo "Deleting the archive..."
+  rm "$ARCHIVE_NAME"
+  echo "Deleting the encrypted archive..."
+  rm "$ENCRYPTED_ARCHIVE"
+  echo "Archive decrypted and extracted successfully."
+else
+  echo "Decryption failed."
+fi

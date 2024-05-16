@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Check if directory path is provided
+if [ -z "$1" ]; then
+  echo "Usage: $0 /path/to/directory"
+  exit 1
+fi
+
+# Define variables
+DIRECTORY=$1
+ARCHIVE_NAME=$(basename "$DIRECTORY").tar.gz
+ENCRYPTED_ARCHIVE_NAME=$ARCHIVE_NAME.gpg
+
+# Compress the directory
+echo "Compressing the directory..."
+tar -czf "$ARCHIVE_NAME" -C "$(dirname "$DIRECTORY")" "$(basename "$DIRECTORY")"
+
+# Encrypt the archive
+echo "Encrypting the archive..."
+gpg -c "$ARCHIVE_NAME"
+
+# Check if the encryption was successful
+if [ $? -eq 0 ]; then
+  # Remove the unencrypted archive
+  echo "Removing the unencrypted archive..."
+  rm "$ARCHIVE_NAME"
+  echo "Removing the unencrypted directory..."
+  rm -rf "$DIRECTORY"
+  echo "Directory encrypted successfully: $ENCRYPTED_ARCHIVE_NAME"
+else
+  echo "Encryption failed."
+fi
